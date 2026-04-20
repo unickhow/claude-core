@@ -15,6 +15,7 @@ claude-core/
 ├── CLAUDE.md                                  ← always-on behavioral rules
 └── skills/
     ├── design-taste-review/SKILL.md           ← UI review via Rams / Ive / Jobs / Norman / Tufte / WCAG
+    ├── migration-safety/SKILL.md              ← DB schema change checklist (expand → migrate → contract)
     └── performance-review/SKILL.md            ← DB / API / frontend / build perf audit
 ```
 
@@ -33,6 +34,7 @@ mv ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.bak 2>/dev/null
 ln -s ~/Projects/claude-core/CLAUDE.md ~/.claude/CLAUDE.md
 mkdir -p ~/.claude/skills
 ln -s ~/Projects/claude-core/skills/design-taste-review ~/.claude/skills/design-taste-review
+ln -s ~/Projects/claude-core/skills/migration-safety    ~/.claude/skills/migration-safety
 ln -s ~/Projects/claude-core/skills/performance-review  ~/.claude/skills/performance-review
 ```
 
@@ -60,17 +62,18 @@ Keeps the baseline versioned inside each project.
 
 ## Contents
 
-### `CLAUDE.md` (139 lines)
+### `CLAUDE.md` (134 lines)
 
 Always-on rules, covering:
 
 - Principle precedence (user intent > safety > YAGNI > KISS > DRY)
+- Intellectual honesty — truth over agreement, evidence over confidence
 - Think-before-coding / simplicity / surgical edits
 - Goal-driven execution with verification
-- Testing, debugging, security, performance — short rules that point to deeper skills
-- Error handling and schema migration safety (expand → migrate → contract)
+- Testing, debugging, security, performance — short rules that delegate to skills
+- Error handling and destructive-op confirmation
 - Communication and PR reporting discipline
-- Frontend design-taste pointer
+- Pointers to design-taste and migration-safety skills
 
 ### `skills/design-taste-review`
 
@@ -86,6 +89,18 @@ Triggered when finalizing UI / reviewing a design decision. Applies real framewo
 
 Output is always a concrete **cut / change / keep** list.
 
+### `skills/migration-safety`
+
+Triggered on DB schema changes (ALTER, DROP, RENAME, column add/remove, constraints, indexes). Enforces:
+
+- **Expand → migrate → contract** staging (never rename/drop in one step)
+- Pre-flight checklist (backup verified, row count, lock behavior, timeout, idempotent, down path)
+- Per-change decision tree (add column, rename, type change, FK, index — each has a safe path)
+- Large-table specifics (> 10M rows): batched backfill, online DDL, replica lag monitoring
+- Rollback plan covering mid-run failure, deploy failure, and late revert
+
+Separated from `CLAUDE.md §10` because migration rules are context-triggered, not always-on.
+
 ### `skills/performance-review`
 
 Triggered on "slow", "optimize", profiling work, or pre-ship audits. Covers DB (N+1, indexes, EXPLAIN), API (serialization, sync I/O), frontend (LCP / INP / CLS, bundle, re-renders), and build / CI. Enforces **measure before optimizing, prove the fix with numbers**.
@@ -99,7 +114,7 @@ Triggered on "slow", "optimize", profiling work, or pre-ship audits. Covers DB (
 | Tool | Why | Where |
 |---|---|---|
 | **superpowers** plugin | Provides `test-driven-development`, `systematic-debugging`, `verification-before-completion`, `receiving-code-review`. CLAUDE.md delegates to these instead of duplicating their content. | Claude Code plugin marketplace |
-| **`/security-review`** | Built-in command Claude Code ships with. `CLAUDE.md §7` routes security audits to it. | Built-in, no install |
+| **`/security-review`** | Built-in command Claude Code ships with. `CLAUDE.md §8` routes security audits to it. | Built-in, no install |
 
 ### Strongly recommended
 
@@ -146,7 +161,7 @@ When they conflict, see `CLAUDE.md §0`. The default stance is: **fewer diff lin
 
 ## Credits & inspiration
 
-- **[forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)** — the four core principles of `CLAUDE.md` (Think Before Coding / Simplicity First / Surgical Changes / Goal-Driven Execution, §1–§4) are adapted from this repo, itself inspired by Andrej Karpathy's observations on LLM coding failure modes. Everything else (§0 precedence, §5–§11, the two skills) is added on top.
+- **[forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)** — the four core principles of `CLAUDE.md` (Think Before Coding / Simplicity First / Surgical Changes / Goal-Driven Execution, §2–§5) are adapted from this repo, itself inspired by Andrej Karpathy's observations on LLM coding failure modes. Everything else (§0 precedence, §1 intellectual honesty, §6–§12, the two skills) is added on top.
 - **[pbakaus/impeccable](https://github.com/pbakaus/impeccable)** and **[nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)** — referenced as companion tools; shaped how `design-taste-review` positions itself (evaluation, not generation).
 - **Anthropic Superpowers** — the skills `test-driven-development`, `systematic-debugging`, `verification-before-completion`, `receiving-code-review` are delegated to rather than duplicated.
 
