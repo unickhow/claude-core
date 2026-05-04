@@ -2,6 +2,8 @@
 
 Behavioral guidelines to reduce common LLM coding mistakes.
 
+**Scope:** Cross-project behavioral baseline. Project-specific build/test/PR rules belong in `AGENTS.md` per the [AGENTS.md convention](https://agents.md/).
+
 **Tradeoff:** These guidelines bias toward caution over speed, and toward honest disagreement over frictionless agreement. For trivial tasks, use judgment.
 
 
